@@ -75,52 +75,52 @@ if mode == "Admin":
     st.subheader("➕ Add new menu item")
 
     with st.form("add_menu_item"):
-      name = st.text_input("Name")
-      description = st.text_area("Description")
+        name = st.text_input("Name")
+        description = st.text_area("Description")
 
-      col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
 
-      with col1:
-          category = st.selectbox(
-              "Category",
-              ["main_course", "appetizer", "dessert"]
-          )
+        with col1:
+            category = st.selectbox(
+                "Category",
+                ["main_course", "appetizer", "dessert"]
+            )
 
-      with col2:
-          diet = st.selectbox(
-              "Diet",
-              ["omnivore", "vegetarian", "vegan"]
-          )
+        with col2:
+            diet = st.selectbox(
+                "Diet",
+                ["omnivore", "vegetarian", "vegan"]
+            )
 
-      with col3:
-          price = st.number_input(
-              "Price",
-              min_value=0.0,
-              step=1.0
-          )
+        with col3:
+            price = st.number_input(
+                "Price",
+                min_value=0.0,
+                step=1.0
+            )
 
-      submitted = st.form_submit_button("Add item")
+        submitted = st.form_submit_button("Add item")
 
-    if submitted:
-      if not name or not description:
-          st.error("Name and description are required.")
-      else:
-          from uuid import uuid4
-          from services.ingest_service import ingest_menu_item
+        if submitted:
+            if not name or not description:
+                st.error("Name and description are required.")
+            else:
+                from uuid import uuid4
+                from services.ingest_service import ingest_menu_item
 
-          item_id = str(uuid4())
+                item_id = str(uuid4())
 
-          ingest_menu_item(
-              id=item_id,
-              name=name,
-              description=description,
-              category=category,
-              diet=diet,
-              price=price
-          )
+                ingest_menu_item(
+                    id=item_id,
+                    name=name,
+                    description=description,
+                    category=category,
+                    diet=diet,
+                    price=price
+                )
 
-          st.success(f"Item '{name}' added successfully!")
-          st.rerun()
+                st.success(f"Item '{name}' added successfully!")
+                st.rerun()
 
     st.subheader("📋 Edit current menu items")
 
@@ -130,68 +130,68 @@ if mode == "Admin":
         st.info("No menu items yet.")
 
     for item in items:
-      meta = item["metadata"]
-      item_id = item["id"]
+        meta = item["metadata"]
+        item_id = item["id"]
 
-      with st.expander(meta.get("name", "Unnamed"), expanded=False):
+        with st.expander(meta.get("name", "Unnamed"), expanded=False):
 
-          name = st.text_input(
-              "Name",
-              value=meta.get("name", "Unnamed"),
-              key=f"name_{item_id}"
-          )
+            name = st.text_input(
+                "Name",
+                value=meta.get("name", "Unnamed"),
+                key=f"name_{item_id}"
+            )
 
-          description = st.text_area(
-              "Description",
-              value=item["document"],
-              key=f"desc_{item_id}"
-          )
+            description = st.text_area(
+                "Description",
+                value=item["document"],
+                key=f"desc_{item_id}"
+            )
 
-          col1, col2, col3 = st.columns(3)
+            col1, col2, col3 = st.columns(3)
 
-          with col1:
-              category = st.selectbox(
-                  "Category",
-                  ["main_course", "appetizer", "dessert"],
-                  index=["main_course", "appetizer", "dessert"].index(meta["category"]),
-                  key=f"cat_{item_id}"
-              )
+            with col1:
+                category = st.selectbox(
+                    "Category",
+                    ["main_course", "appetizer", "dessert"],
+                    index=["main_course", "appetizer", "dessert"].index(meta["category"]),
+                    key=f"cat_{item_id}"
+                )
 
-          with col2:
-              diet = st.selectbox(
-                  "Diet",
-                  ["omnivore", "vegetarian", "vegan"],
-                  index=["omnivore", "vegetarian", "vegan"].index(meta["diet"]),
-                  key=f"diet_{item_id}"
-              )
+            with col2:
+                diet = st.selectbox(
+                    "Diet",
+                    ["omnivore", "vegetarian", "vegan"],
+                    index=["omnivore", "vegetarian", "vegan"].index(meta["diet"]),
+                    key=f"diet_{item_id}"
+                )
 
-          with col3:
-              price = st.number_input(
-                  "Price",
-                  value=float(meta["price"]),
-                  step=1.0,
-                  key=f"price_{item_id}"
-              )
+            with col3:
+                price = st.number_input(
+                    "Price",
+                    value=float(meta["price"]),
+                    step=1.0,
+                    key=f"price_{item_id}"
+                )
 
-          col_update, col_delete = st.columns(2)
+            col_update, col_delete = st.columns(2)
 
-          with col_update:
-              if st.button("💾 Save changes", key=f"save_{item_id}"):
-                  ingest_menu_item(
-                      id=item_id,
-                      name=name,
-                      description=description,
-                      category=category,
-                      diet=diet,
-                      price=price,
-                  )
-                  st.success("Updated successfully")
-                  st.rerun()
+            with col_update:
+                if st.button("💾 Save changes", key=f"save_{item_id}"):
+                    ingest_menu_item(
+                        id=item_id,
+                        name=name,
+                        description=description,
+                        category=category,
+                        diet=diet,
+                        price=price,
+                    )
+                    st.success("Updated successfully")
+                    st.rerun()
 
-          with col_delete:
-              if st.button("🗑️ Delete item", key=f"del_{item_id}"):
-                  collection = get_chroma_collection("restaurant")
-                  collection.delete(ids=[item_id])
-                  st.warning("Item deleted")
-                  st.rerun()
+            with col_delete:
+                if st.button("🗑️ Delete item", key=f"del_{item_id}"):
+                    collection = get_chroma_collection("restaurant")
+                    collection.delete(ids=[item_id])
+                    st.warning("Item deleted")
+                    st.rerun()
 

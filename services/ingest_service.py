@@ -8,6 +8,7 @@ def ingest_menu_item(
     category: str,
     diet: str,
     price: float,
+    ingredients: list[str],
     niche: str = "restaurant"
 ):
     model = get_embedding_model()
@@ -21,7 +22,8 @@ def ingest_menu_item(
         "name": name,
         "category": category,
         "diet": diet,
-        "price": price
+        "price": price,
+        "ingredients": [i.lower() for i in ingredients],
     }
 
     collection.upsert(
