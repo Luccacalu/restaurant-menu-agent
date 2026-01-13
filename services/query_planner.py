@@ -64,6 +64,8 @@ SCHEMA:
   "candidate_limit": number
 }
 
+ALL of the fields above MUST be present in your output JSON. Always use null if you're not sure about a field.
+
 --------------------
 EXAMPLES:
 

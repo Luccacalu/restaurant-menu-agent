@@ -18,8 +18,8 @@ Question:
 {question}
 
 If the context does not contain the answer, say you don't have that information.
-Answer clearly and concisely. Be nice and polite, like a restaurant server, but always succinct. All prices are in dollars. 
-Use only plain text; do not use markdown or other formatting.
+Answer clearly and concisely. Be nice and polite, like a restaurant server, justifying and explaining the chosen menu items, but always succinct. All prices are in dollars. 
+Use ONLY plain text; NEVER use markdown or other formatting.
 """
 
     print("RAG Prompt:", prompt)
