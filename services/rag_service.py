@@ -1,23 +1,10 @@
-from services.filter_service import extract_filters
 from services.llm_service import generate_answer
 from services.query_service import semantic_search
 
-def rag_answer(question: str, niche: str, top_k: int = 10) -> str:
-    filters = extract_filters(question)
-
-    results = semantic_search(
-        query=question,
-        niche=niche,
-        filters=filters,
-        top_k=top_k
-    )
-
-    if not results:
-        return "I couldn't find any menu items matching your request."
-
+def rag_answer(question: str, candidates: list[tuple[str, dict]]) -> str:
     context = "\n\n".join(
-        f"- {document} (category: {meta['category']}, diet: {meta['diet']}, price: ${meta['price']})"
-        for document, meta in results
+        f"- {document} (category: {meta['category']}, diet: {meta['diet']}, price: ${meta['price']}, ingredients: {meta['ingredients']})"
+        for document, meta in candidates
     )
 
 

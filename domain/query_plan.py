@@ -40,8 +40,7 @@ class Filters:
 
 @dataclass
 class SemanticConstraint:
-    positive: List[str]
-    negative: List[str]
+    query: str
 
 
 @dataclass
@@ -51,3 +50,4 @@ class QueryPlan:
     sort: Optional[SortSpec] = None
     semantic_constraint: Optional[SemanticConstraint] = None
     candidate_limit: int = 20
+    question: str = ""

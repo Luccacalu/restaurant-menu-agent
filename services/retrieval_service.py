@@ -3,14 +3,11 @@ from core.vectorstore import get_chroma_collection
 from domain.query_plan import QueryPlan
 
 def retrieve_candidates(
-    query: str,
     niche: str,
     plan: QueryPlan,
 ):
     model = get_embedding_model()
     collection = get_chroma_collection(niche)
-
-    query_embedding = model.encode([query]).tolist()
 
     where = {}
 
@@ -32,14 +29,27 @@ def retrieve_candidates(
 
             where["price"] = price_filter
 
-    results = collection.query(
-        query_embeddings=query_embedding,
-        n_results=plan.candidate_limit,
-        where=where if where else None,
-        include=["documents", "metadatas"],
-    )
+    if "semantic" in plan.capabilities:
+        model = get_embedding_model()
+        embedding = model.encode([plan.question]).tolist()
 
-    documents = results["documents"][0]
-    metadatas = results["metadatas"][0]
+        results = collection.query(
+            query_embeddings=embedding,
+            n_results=plan.candidate_limit,
+            where=where if where else None,
+            include=["documents", "metadatas"],
+        )
+
+        documents = results["documents"][0]
+        metadatas = results["metadatas"][0]
+    else:
+        results = collection.get(
+            where=where if where else None,
+            limit=plan.candidate_limit * 5,
+            include=["documents", "metadatas"],
+        )
+
+        documents = results["documents"]
+        metadatas = results["metadatas"]
 
     return list(zip(documents, metadatas))

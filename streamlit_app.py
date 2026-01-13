@@ -1,6 +1,9 @@
 import streamlit as st
-
 from core.vectorstore import get_chroma_collection
+from services.query_execution_service import execute_query_plan
+from uuid import uuid4
+from services.ingest_service import ingest_menu_item
+from services.query_planner import build_query_plan
 
 def get_all_menu_items(niche="restaurant"):
     collection = get_chroma_collection(niche)
@@ -43,11 +46,13 @@ if mode == "User":
 
     if question:
         with st.spinner("Thinking..."):
-            from services.rag_service import rag_answer
 
-            answer = rag_answer(
+            plan = build_query_plan(question)
+
+            answer = execute_query_plan(
                 question=question,
-                niche="restaurant"
+                niche="restaurant",
+                plan=plan,
             )
 
         st.markdown("### Answer")
@@ -68,6 +73,7 @@ if mode == "Admin":
             - Category: {meta.get('category')}
             - Description: {item['document']}
             - Diet: {meta.get('diet')}
+            - Ingredients: {meta.get('ingredients')}
             - Price: ${meta.get('price')}
             """)
 
@@ -78,7 +84,7 @@ if mode == "Admin":
         name = st.text_input("Name")
         description = st.text_area("Description")
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             category = st.selectbox(
@@ -99,14 +105,24 @@ if mode == "Admin":
                 step=1.0
             )
 
+        with col4:
+            ingredients_text = st.text_area(
+                "Ingredients (one per line or comma-separated)",
+                help="Example: rice, lemon zest, olive oil"
+            )
+
         submitted = st.form_submit_button("Add item")
 
         if submitted:
             if not name or not description:
                 st.error("Name and description are required.")
             else:
-                from uuid import uuid4
-                from services.ingest_service import ingest_menu_item
+
+                ingredients = [
+                    i.strip()
+                    for i in ingredients_text.replace("\n", ",").split(",")
+                    if i.strip()
+                ]
 
                 item_id = str(uuid4())
 
@@ -116,7 +132,8 @@ if mode == "Admin":
                     description=description,
                     category=category,
                     diet=diet,
-                    price=price
+                    price=price,
+                    ingredients=ingredients
                 )
 
                 st.success(f"Item '{name}' added successfully!")
@@ -147,7 +164,7 @@ if mode == "Admin":
                 key=f"desc_{item_id}"
             )
 
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
 
             with col1:
                 category = st.selectbox(
@@ -172,11 +189,25 @@ if mode == "Admin":
                     step=1.0,
                     key=f"price_{item_id}"
                 )
+            
+            with col4:
+                ingredients_text = st.text_area(
+                    "Ingredients",
+                    value=meta.get("ingredients", ""),
+                    key=f"ing_{item_id}",
+                    help="Comma-separated or one per line"
+                )
 
             col_update, col_delete = st.columns(2)
 
             with col_update:
                 if st.button("💾 Save changes", key=f"save_{item_id}"):
+                    ingredients = [
+                        i.strip()
+                        for i in ingredients_text.replace("\n", ",").split(",")
+                        if i.strip()
+                    ]
+
                     ingest_menu_item(
                         id=item_id,
                         name=name,
@@ -184,6 +215,7 @@ if mode == "Admin":
                         category=category,
                         diet=diet,
                         price=price,
+                        ingredients=ingredients
                     )
                     st.success("Updated successfully")
                     st.rerun()

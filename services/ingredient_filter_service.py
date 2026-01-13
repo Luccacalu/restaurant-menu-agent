@@ -21,8 +21,8 @@ def apply_ingredient_filters(
         if exclude and ingredients.intersection(exclude):
             continue
 
-        if include and not include.issubset(ingredients):
-            continue
+        #if include and not include.issubset(ingredients):
+        #    continue
 
         filtered.append((document, meta))
 

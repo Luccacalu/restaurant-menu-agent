@@ -33,7 +33,8 @@ RULES:
 - If a field is not mentioned, use null.
 - If something is ambiguous, not specified, or user is not entirely sure, use null.
 - ingredient lists must be arrays of lowercase strings.
-- semantic constraints MUST be split into positive and negative lists.
+- For semantic constraints, combine all semantic preferences into a single query string.
+- For price filters, if no absolutely certain min or max is mentioned, use null.
 - If the user says "cheapest", use sort by price ascending.
 - If no sort is mentioned, sort MUST be null.
 - candidate_limit should be between 20 and 40 (default 30).
@@ -53,8 +54,8 @@ SCHEMA:
     "price_max": number | null
   },
   "semantic_constraint": {
-    "positive": ["string"] | null,
-    "negative": ["string"] | null
+    "query": "string"
+  } | null
   },
   "sort": {
     "field": "price",
@@ -79,8 +80,7 @@ Output:
     "price_max": null
   },
   "semantic_constraint": {
-    "positive": ["goes well with wine"],
-    "negative": ["bitter"]
+    "query": "goes well with wine, not bitter"
   },
   "sort": {
     "field": "price",
@@ -118,4 +118,5 @@ def build_query_plan(question: str) -> QueryPlan:
         ),
         sort=SortSpec(**data["sort"]) if data.get("sort") else None,
         candidate_limit=data.get("candidate_limit", 30),
+        question=question,
     )
