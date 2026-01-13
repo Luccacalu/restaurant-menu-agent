@@ -30,8 +30,13 @@ def semantic_search(
     results = collection.query(
         query_embeddings=query_embedding,
         n_results=top_k,
+        include=['documents', 'metadatas'],
         where=where if where else None
     )
+
+    print("---------------------\n")
+    print("Semantic Search Results:", results)
+    print("\n---------------------")
 
     documents = results["documents"][0]
     metadatas = results["metadatas"][0]

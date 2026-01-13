@@ -8,8 +8,23 @@ def ingest_menu_item(
     category: str,
     diet: str,
     price: float,
+    ingredients: list[str],
     niche: str = "restaurant"
 ):
+    
+    if ingredients is None:
+        ingredients_list = []
+    elif isinstance(ingredients, str):
+        ingredients_list = [
+            i.strip().lower()
+            for i in ingredients.split(",")
+            if i.strip()
+        ]
+    elif isinstance(ingredients, list):
+        ingredients_list = [str(i).lower().strip() for i in ingredients]
+    else:
+        raise ValueError(f"Invalid ingredients type: {type(ingredients)}")
+    
     model = get_embedding_model()
     collection = get_chroma_collection(niche)
 
@@ -17,11 +32,14 @@ def ingest_menu_item(
 
     embedding = model.encode([document]).tolist()
 
+    print(f"Ingesting ingredients for {name}: {ingredients_list}")
+
     metadata = {
         "name": name,
         "category": category,
         "diet": diet,
-        "price": price
+        "price": price,
+        "ingredients": ", ".join(ingredients_list),
     }
 
     collection.upsert(
