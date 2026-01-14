@@ -20,6 +20,8 @@ Question:
 If the context does not contain the answer, say you don't have that information.
 Answer clearly and concisely. Be nice and polite, like a restaurant server, talking a bit about the chosen menu items in a pleasant way, but always succinct. All prices are in dollars. 
 Use ONLY plain text; NEVER use markdown or other formatting.
+
+Your answer should be in the original language of the question. Feel free to translate the menu item names and descriptions if needed. Translate the menu items names.
 """
 
     print("RAG Prompt:", prompt)

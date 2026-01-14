@@ -29,11 +29,13 @@ CAPABILITIES:
 --------------------
 RULES:
 
+- If the question isn't in english, translate all fields to english.
 - Include ONLY the capabilities that are explicitly or clearly implied.
 - If a field is not mentioned, use null.
 - If something is ambiguous, not specified, or user is not entirely sure, use null.
 - ingredient lists must be arrays of lowercase strings.
 - For semantic constraints, combine all semantic preferences into a single query string.
+- If the question isn't in english, translate the semantic constraints to english.
 - For price filters, if no absolutely certain min or max is mentioned, use null.
 - If the user says "cheapest", use sort by price ascending.
 - If no sort is mentioned, sort MUST be null.
